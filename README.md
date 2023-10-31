@@ -2,6 +2,18 @@
 
 ZSH plugin for pinning directories. Like a CLI folder bookmark manager (with tab completion!)
 
+## Changes in this fork
+
+I encountered problems with the aliases utilized in the initial plugin, so I modified them to operate based on arguments. Additionally, I faced issues where I received an error stating that `-P is not a valid grep option`. To resolve this, I removed the option and merged grep with `awk`. The following are the updated commands after implementing these changes.
+
+| Command     | Description                                          |
+| ----------- | ---------------------------------------------------- |
+| `showpins`      | list all pins                                    |
+| `pins g <name>` | go to pin and list contents                      |
+| `pins a <name>` | add pin to current directory with name           |
+| `pins d <name>` | delete pin with name                             |
+| `pins e <name>` | edit pin with name to point to current directory |
+
 ## Usage
 
 | Command     | Description                                      |
@@ -47,7 +59,7 @@ ZSH plugin for pinning directories. Like a CLI folder bookmark manager (with tab
 2. Add the plugin to the list of plugins for Oh My Zsh to load (inside `~/.zshrc`):
 
     ```sh
-    plugins=( 
+    plugins=(
         # other plugins...
         zsh-pins
     )
