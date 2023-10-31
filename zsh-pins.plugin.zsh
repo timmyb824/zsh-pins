@@ -1,6 +1,6 @@
 pinfile=${XDG_DATA_HOME:-$HOME}/pins
 
-alias pl='if [ -f $pinfile ]; then
+alias showpins='if [ -f $pinfile ]; then
             while read -r pin; do
               key=`awk -F "\t" '"'"'{print $1}'"'"' <<< $pin`
               folder=`awk -F "\t" '"'"'{print $2}'"'"' <<< $pin`
@@ -8,32 +8,38 @@ alias pl='if [ -f $pinfile ]; then
             done < $pinfile | column -t -s :
           fi'
 
-pa() {
-  if [ "$1" != "" ] && ([ ! -f "$pinfile" ] || ! grep -Pq "^$1\t" "$pinfile"); then
-    touch "$pinfile"
-    echo -e "$1\t$PWD" >> "$pinfile"
-    sort -o "$pinfile" "$pinfile"
-    pl
-  fi
-}
+pins() {
+  operation=$1
+  argument=$2
+  case $operation in
+    a)
+      if [ "$argument" != "" ] && ([ ! -f "$pinfile" ] || ! awk -F "\t" '{print $1}' "$pinfile" | grep -q "^$argument$"); then
+        touch "$pinfile"
+        echo -e "$argument\t$PWD" >> "$pinfile"
+        sort -o "$pinfile" "$pinfile"
+        showpins
+      fi
+      ;;
 
-pd() {
-  if [ "$1" != "" ] && grep -Pq "^$1\t" "$pinfile"; then
-    sed -i --follow-symlinks "/^$1\t/d" "$pinfile"
-    pl
-  fi
-}
+    d)
+      if [ "$argument" != "" ] && awk -F "\t" '{print $1}' "$pinfile" | grep -q "^$argument$"; then
+        sed -i --follow-symlinks "/^$argument\t/d" "$pinfile"
+        showpins
+      fi
+      ;;
 
-pe() {
-  if [ "$1" != "" ] && grep -Pq "^$1\t" "$pinfile"; then
-    sed -i --follow-symlinks "s~^$1\t.*~$1\t$PWD~" "$pinfile"
-    pl
-  fi
-}
+    e)
+      if [ "$argument" != "" ] && awk -F "\t" '{print $1}' "$pinfile" | grep -q "^$argument$"; then
+        sed -i --follow-symlinks "s~^$argument\t.*~$argument\t$PWD~" "$pinfile"
+        showpins
+      fi
+      ;;
 
-pg() {
-  if [ "$1" != "" ] && grep -Pq "^$1\t" "$pinfile"; then
-    cd "$(sed "s/^$1\t\(.*\)$/\1/;t;d" "$pinfile")" || exit
-    ls
-  fi
+    g)
+      if [ "$argument" != "" ] && awk -F "\t" '{print $1}' "$pinfile" | grep -q "^$argument$"; then
+        cd "$(awk -F "\t" -v arg="$argument" '$1==arg {print $2}' "$pinfile")" || exit
+        ls
+      fi
+      ;;
+  esac
 }
